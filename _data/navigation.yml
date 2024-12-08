@@ -10,14 +10,11 @@ main:
     
   - title: "Portfolio"
     url: /_portfolio/portfolio-1.md/
-        
-  - title: "Blog Posts"
-    url: /year-archive/
     
   - title: "Research"
-    url: /markdown/
+    url: /_portfolio/
 
   - title: "Publications"
-    url: /markdown/
+    url: /_publications/
 
   
