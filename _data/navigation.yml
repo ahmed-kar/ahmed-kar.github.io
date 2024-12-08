@@ -8,13 +8,13 @@ main:
   - title: "CV"
     url: /files/Resume.pdf  
     
-  - title: "Portfolio"
-    url: /_portfolio/portfolio-1.md/
+#  - title: "Portfolio"
+#    url: /_portfolio/
     
   - title: "Research"
-    url: /_portfolio/
+    url: /portfolio/
 
   - title: "Publications"
-    url: /_publications/
+    url: /publications/
 
   
