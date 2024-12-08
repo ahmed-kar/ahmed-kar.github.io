@@ -8,8 +8,8 @@ main:
   - title: "CV"
     url: /files/Resume.pdf  
     
-  - title: "Portfolio"
-    url: /_portfolio/
+#  - title: "Portfolio"
+#    url: /_portfolio/
     
   - title: "Research"
     url: /_portfolio/
