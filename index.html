@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahmed Karim</title>
+  <meta name="description" content="Ahmed Karim. Incoming PhD researcher at UCL Robot Perception and Learning Lab." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+    <span class="theme-icon-light" aria-hidden="true">☀</span>
+    <span class="theme-icon-dark" aria-hidden="true">☾</span>
+  </button>
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Ahmed Karim</h1>
+        <p class="title">Incoming PhD researcher</p>
+        <p class="dept">
+          UCL Robot Perception and Learning Lab<br />
+          EPSRC CDT in Cyber-Physical Risk
+        </p>
+      </div>
+      <div class="hero-photo">
+        <img src="photo.png" alt="Ahmed Karim" />
+      </div>
+    </section>
+
+    <!-- ============ TWO-COLUMN BODY ============ -->
+    <div class="layout">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <ul class="side-list">
+          <li>
+            <a href="mailto:csahmedk@gmail.com">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+              <span>Email</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://scholar.google.com/citations?hl=en&user=YGac_iIAAAAJ" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1L0 9l4.5 3v6.5L12 23l7.5-4.5V12L24 9 12 1zm0 14a4 4 0 110-8 4 4 0 010 8z"/></svg>
+              <span>Google Scholar</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/in/ahmed-karim-ak/" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 11.001-4.122 2.06 2.06 0 01-.001 4.122zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.99 0 1.78-.77 1.78-1.72V1.72C24 .77 23.21 0 22.22 0z"/></svg>
+              <span>LinkedIn</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/ahmed-kar" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 00-3.79 23.4c.6.11.82-.26.82-.58v-2.04C5.7 21.7 5 19.62 5 19.62a3.2 3.2 0 00-1.34-1.78c-1.1-.74.08-.73.08-.73a2.55 2.55 0 011.86 1.25 2.6 2.6 0 003.5 1 2.6 2.6 0 01.78-1.62C7.32 17.4 4.86 16.5 4.86 12.4a4.6 4.6 0 011.22-3.2 4.27 4.27 0 01.12-3.16s1-.32 3.3 1.21a11.4 11.4 0 016 0c2.28-1.53 3.28-1.21 3.28-1.21a4.27 4.27 0 01.13 3.16 4.6 4.6 0 011.22 3.2c0 4.1-2.46 5-4.81 5.27a2.93 2.93 0 01.83 2.27v3.36c0 .33.22.7.83.58A12 12 0 0012 .3"/></svg>
+              <span>GitHub</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://x.com/ahmedkar_" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              <span>X</span>
+            </a>
+          </li>
+          <li>
+            <a href="CV.pdf" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
+              <span>Resume</span>
+            </a>
+          </li>
+        </ul>
+
+        <h3 class="side-h">Affiliations</h3>
+        <ul class="side-list small">
+          <li><a href="https://rpl-as-ucl.github.io" target="_blank" rel="noopener">UCL Robot Perception and Learning Lab</a></li>
+          <li>UCL AI Centre</li>
+          <li>UCL Robotics Institute</li>
+          <li>EPSRC CDT in Cyber-Physical Risk</li>
+        </ul>
+      </aside>
+
+      <!-- Main column -->
+      <div class="content">
+
+        <!-- ABOUT -->
+        <section id="about" class="section">
+          <h2>About</h2>
+          <p>
+            I'm an incoming PhD researcher at <a href="https://rpl-as-ucl.github.io" target="_blank" rel="noopener">UCL's Robot Perception and Learning Lab</a>,
+            supervised by <a href="https://dkanou.github.io/" target="_blank" rel="noopener">Prof. Dimitrios Kanoulas</a>. My research focuses on
+            <em>foundational world models for robotics</em>: how autonomous systems learn to perceive, predict, and act in environments
+            they have never seen before.
+          </p>
+
+          <p>
+            I work at the intersection of world models, open-ended learning, and embodied AI, with applications in autonomous systems
+            for extreme environments such as disaster response, planetary exploration, and deep sea. Alongside this, I do research
+            on language models, focusing on reliability, hallucination, and the information-theoretic structure behind their failures.
+          </p>
+
+          <p>
+            Currently I'm an ML Engineer at the London Stock Exchange Group (Advanced Data Analytics) and a part-time Research Scientist at Hassana Labs.
+          </p>
+        </section>
+
+        <!-- NEWS -->
+        <section class="section">
+          <h2>News</h2>
+          <ul class="news">
+            <li><span class="ndate">Oct 2026</span><span>Starting my PhD at the UCL Robot Perception and Learning Lab.</span></li>
+            <li><span class="ndate">Apr 2026</span><span>Paper accepted at <em>ICML 2026</em>: <em>Predictable Compression Failures: Why Language Models Actually Hallucinate</em>.</span></li>
+            <li><span class="ndate">2026</span><span>Awarded EPSRC TechExpert PhD studentship at the UCL CDT in Cyber-Physical Risk.</span></li>
+            <li><span class="ndate">2025</span><span>Paper accepted at <em>EMNLP 2025</em>: <em>Beyond the Score</em>.</span></li>
+          </ul>
+        </section>
+
+        <!-- PUBLICATIONS -->
+        <section id="publications" class="section">
+          <h2>Publications</h2>
+
+          <article class="pub">
+            <div class="pub-img"><img src="thumbnail_attempt_a_two_distributions.svg" alt="Two probability distributions illustration" /></div>
+            <div class="pub-meta">
+              <h4>Predictable Compression Failures: Why Language Models Actually Hallucinate</h4>
+              <p class="auth">L. Chlon, <strong>A. Karim</strong>, M. Chlon</p>
+              <p class="ven"><em>ICML 2026</em></p>
+              <p class="links">
+                <a href="https://arxiv.org/pdf/2509.11208" target="_blank" rel="noopener">paper</a>
+                <a href="https://github.com/leochlon/hallbayes" target="_blank" rel="noopener">code</a>
+              </p>
+            </div>
+          </article>
+
+          <article class="pub">
+            <div class="pub-img"><img src="bts_v2_light.svg" alt="Conformal prediction set illustration" /></div>
+            <div class="pub-meta">
+              <h4>Beyond the Score: Uncertainty-Calibrated LLMs for Automated Essay Assessment</h4>
+              <p class="auth"><strong>A. Karim</strong>, Q. Wang, Z. Yuan</p>
+              <p class="ven"><em>EMNLP 2025</em></p>
+              <p class="links">
+                <a href="https://arxiv.org/pdf/2509.15926" target="_blank" rel="noopener">paper</a>
+              </p>
+            </div>
+          </article>
+
+          <article class="pub">
+            <div class="pub-img"><img src="ad_concept_g_circuit.svg" alt="Multi-layer attention trace illustration" /></div>
+            <div class="pub-meta">
+              <h4>Attention Deficits in Language Models: Causal Explanations for Procedural Hallucinations</h4>
+              <p class="auth"><strong>A. Karim</strong>, F. Sheaib, Z. Khamis, M. Chlon, J. Awada, L. Chlon</p>
+              <p class="ven">arXiv preprint</p>
+              <p class="links">
+                <a href="https://arxiv.org/pdf/2602.19239" target="_blank" rel="noopener">paper</a>
+              </p>
+            </div>
+          </article>
+        </section>
+
+        <!-- OPEN SOURCE -->
+        <section id="open-source" class="section">
+          <h2>Open Source</h2>
+          <ul class="projects">
+            <li>
+              <strong><a href="https://github.com/leochlon/hallbayes" target="_blank" rel="noopener">Berry</a></strong>:
+              OpenAI-compatible Hallucination Risk Calculator for LLM reliability. <span class="muted">1,600+ stars.</span>
+            </li>
+            <li>
+              <strong><a href="https://github.com/leochlon/mezzanine" target="_blank" rel="noopener">Mezzanine</a></strong>:
+              toolkit for diagnosing reliability and structure failures in modern ML systems. <span class="muted">150+ stars.</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- RESUME / TIMELINE -->
+        <section id="resume" class="section">
+          <h2>Résumé</h2>
+          <ol class="timeline">
+            <li>
+              <span class="tdate">Oct 2026 –</span>
+              <div class="titem">
+                <h4>UCL <span class="role-inline">· PhD in Computer Science</span></h4>
+                <p class="bdesc">Foundational world models for robotics, supervised by Prof. Dimitrios Kanoulas.</p>
+              </div>
+            </li>
+            <li>
+              <span class="tdate">2025 – present</span>
+              <div class="titem">
+                <h4>Hassana Labs <span class="role-inline">· Research Scientist <span class="muted-inline">(part-time)</span></span></h4>
+                <p class="bdesc">LLM reliability and hallucination research. Co-author on ICML 2026 paper. Co-built Berry, an open-source hallucination risk calculator (1.6k+ ★).</p>
+              </div>
+            </li>
+            <li>
+              <span class="tdate">2024 – present</span>
+              <div class="titem">
+                <h4>London Stock Exchange Group <span class="role-inline">· Machine Learning Engineer</span></h4>
+                <p class="bdesc">Advanced Data Analytics team. End-to-end ML systems: time-series forecasting (ARIMAP, 20% RMSE reduction), RAG-based internal chatbot, NLP+LLM incident-triage pipeline on AWS SageMaker.</p>
+              </div>
+            </li>
+            <li>
+              <span class="tdate">2024</span>
+              <div class="titem">
+                <h4>King's College London <span class="role-inline">· Researcher</span></h4>
+                <p class="bdesc">Uncertainty-calibrated LLMs for automated essay scoring; led to EMNLP 2025 paper.</p>
+              </div>
+            </li>
+            <li>
+              <span class="tdate">2023</span>
+              <div class="titem">
+                <h4>London Stock Exchange Group <span class="role-inline">· DevOps Engineer Intern</span></h4>
+                <p class="bdesc">Cloud migration with Helm, Terraform, Kubernetes. AWS training in LLMs.</p>
+              </div>
+            </li>
+            <li>
+              <span class="tdate">2022</span>
+              <div class="titem">
+                <h4>Imperial College London <span class="role-inline">· Undergraduate Researcher (UROP)</span></h4>
+                <p class="bdesc">Machine learning for wildfire prediction and propagation at the Leverhulme Centre for Wildfires. £2,500 funded.</p>
+              </div>
+            </li>
+            <li>
+              <span class="tdate">2020 – 2023</span>
+              <div class="titem">
+                <h4>Queen Mary, University of London <span class="role-inline">· BSc Computer Science <span class="muted-inline">(First Class)</span></span></h4>
+                <p class="bdesc">Final-year project: model-based reinforcement learning with curiosity-driven exploration.</p>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+      </div>
+    </div>
+
+    <footer>
+      <p>© <span id="year"></span> Ahmed Karim</p>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    })();
+  </script>
+</body>
+</html>
