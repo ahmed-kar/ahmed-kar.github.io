@@ -259,7 +259,6 @@
       gap: 10px;
       padding: 6px 0;
       border-bottom: 1px dotted var(--rule);
-      cursor: pointer;
       transition: opacity 0.15s;
     }
     .item:last-child { border-bottom: none; }
@@ -277,13 +276,24 @@
       font-size: 10px;
       margin-top: 3px;
       font-weight: 700;
+      cursor: pointer;
     }
+    .checkbox:hover { border-color: var(--accent); }
     .item.done .checkbox {
       border-color: var(--accent);
       background: var(--accent);
       color: var(--bg);
     }
+    .item-body {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+      min-width: 0;
+    }
     .item-text {
+      flex: 1;
       font-family: var(--mono);
       font-size: 0.82rem;
       color: var(--text);
@@ -294,6 +304,89 @@
       color: var(--text-muted);
       text-decoration: line-through;
     }
+    .note-indicator {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      font-weight: 700;
+      margin-top: 2px;
+      transition: color 0.15s, transform 0.15s;
+    }
+    .item.has-note .note-indicator { color: var(--accent); }
+    .item-body:hover .note-indicator { color: var(--accent); transform: scale(1.15); }
+
+    /* Inline note editor */
+    .note-editor {
+      margin: 4px 0 10px 26px;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      animation: noteFadeIn 0.15s ease-out;
+    }
+    @keyframes noteFadeIn {
+      from { opacity: 0; transform: translateY(-2px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .note-editor textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 8px 10px;
+      background: var(--bg-soft);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      resize: none;
+      overflow: hidden;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+      display: block;
+    }
+    .note-editor textarea:focus { border-color: var(--accent); }
+    .note-editor textarea::placeholder { color: var(--text-faint); }
+    .note-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text-faint);
+    }
+    .note-actions { display: flex; gap: 6px; }
+    .note-btn {
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      padding: 3px 9px;
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .note-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .note-clear:hover { color: #ef4444; border-color: #ef4444; }
+
+    .icon-btn-link {
+      display: inline-block;
+      text-decoration: none;
+      line-height: 1;
+    }
+    .icon-btn-link:hover { text-decoration: none; }
     mark {
       background: var(--accent);
       color: var(--bg);
@@ -360,10 +453,13 @@
     </div>
 
     <div class="toolbar">
-      <input id="search" class="search" type="text" placeholder="Search items, categories…  ( / to focus )" />
-      <button class="icon-btn" id="export-btn" title="Download progress as JSON">export</button>
-      <button class="icon-btn" id="import-btn" title="Load progress from JSON">import</button>
-      <button class="icon-btn" id="reset-btn" title="Clear all progress">reset</button>
+      <input id="search" class="search" type="text" placeholder="Search items, categories, notes…  ( / to focus )" />
+      <span class="sync-status" id="sync-status" title="Cross-device sync status"><span class="dot"></span><span class="sync-label">…</span></span>
+      <button class="icon-btn" id="sync-btn" title="Push notes to GitHub (cross-device)">sync</button>
+      <a class="icon-btn icon-btn-link" href="notes.html" title="View all notes as a feed">notes →</a>
+      <button class="icon-btn" id="export-btn" title="Download progress and notes as JSON">export</button>
+      <button class="icon-btn" id="import-btn" title="Load progress and notes from JSON">import</button>
+      <button class="icon-btn" id="reset-btn" title="Clear all progress and notes locally">reset</button>
       <input id="import-file" type="file" accept="application/json" style="display:none" />
     </div>
 
@@ -378,268 +474,23 @@
 
   <div id="toast" class="toast"></div>
 
+<script src="reading-data.js"></script>
+<script src="sync.js"></script>
 <script>
-const categories = [
-  { id: "world-models", title: "World Models", icon: "🌍", items: [
-    "World Models (Ha & Schmidhuber, 2018)",
-    "DreamerV1, V2, V3 — read all three to see the evolution",
-    "TD-MPC and TD-MPC2",
-    "IRIS — discrete tokenised world models",
-    "DIAMOND — diffusion world models",
-    "Genie and Genie 2",
-    "UniSim",
-    "JEPA, I-JEPA, V-JEPA — the full LeCun vision",
-    "LeCun — A Path Towards Autonomous Machine Intelligence",
-    "Action-conditioned video prediction",
-    "Latent dynamics models vs pixel prediction",
-    "Recurrent State-Space Models (RSSM)",
-    "Structured State Spaces (S4, Mamba)"
-  ]},
-  { id: "open-ended", title: "Open-Ended Learning", icon: "∞", items: [
-    "Open-Endedness is Essential for ASI (Clune, 2019)",
-    "POET and Enhanced POET",
-    "XLand and XLand-MiniGrid",
-    "Minimal Criterion Coevolution",
-    "Novelty Search (Lehman & Stanley)",
-    "MAP-Elites",
-    "Quality-Diversity optimisation survey",
-    "OMNI-EPIC",
-    "Raileanu's UCL open-endedness course",
-    "The innovation engine concept",
-    "Picbreeder and CPPNs",
-    "Auto-curricula and self-play",
-    "Asymmetric self-play for goal discovery"
-  ]},
-  { id: "curiosity", title: "Curiosity & Exploration", icon: "🔭", items: [
-    "ICM — Curiosity-driven Exploration",
-    "Random Network Distillation (RND)",
-    "Plan2Explore — curiosity meets world models",
-    "Go-Explore",
-    "BYOL-Explore",
-    "Never Give Up (NGU)",
-    "Agent57",
-    "Count-based exploration",
-    "Information gain as intrinsic motivation",
-    "Empowerment as intrinsic motivation",
-    "Active inference and free energy principle",
-    "Frontier-based exploration in robotics",
-    "Information-theoretic planning"
-  ]},
-  { id: "rl", title: "RL Foundations", icon: "🎯", items: [
-    "Policy gradients — REINFORCE, PPO, TRPO",
-    "Actor-critic — A2C, A3C, SAC",
-    "Model-based RL landscape",
-    "Offline RL — CQL, IQL, Decision Transformer",
-    "Goal-conditioned RL",
-    "Hierarchical RL — Options, HIRO, feudal networks",
-    "Multi-task RL and generalisation",
-    "Reward shaping and reward hacking",
-    "Distributional RL",
-    "Inverse RL — learning from demonstrations"
-  ]},
-  { id: "foundation-robotics", title: "Foundation Models for Robotics", icon: "🤖", items: [
-    "RT-1, RT-2, RT-X",
-    "Octo",
-    "OpenVLA",
-    "SayCan — LLMs as high-level planners",
-    "Inner Monologue",
-    "PaLM-E — embodied multimodal LM",
-    "Code as Policies",
-    "VoxPoser",
-    "Language-conditioned imitation learning",
-    "Vision-Language-Action models stack",
-    "RoboFlamingo",
-    "Generalist vs specialist robot policies"
-  ]},
-  { id: "vlm", title: "Vision-Language Models", icon: "👁", items: [
-    "CLIP",
-    "BLIP and BLIP-2",
-    "LLaVA",
-    "GPT-4V/4o vision capabilities",
-    "SAM and SAM2 — segment anything",
-    "Grounding DINO",
-    "Open-vocabulary detection",
-    "Vision Transformers (ViT)",
-    "DINOv2",
-    "MAE — masked autoencoders",
-    "Multimodal fusion — early, late, cross-attention"
-  ]},
-  { id: "representation", title: "Representation Learning", icon: "🧬", items: [
-    "Contrastive learning — SimCLR, MoCo, BYOL",
-    "Joint embedding — VICReg, Barlow Twins",
-    "Self-supervised learning for robotics",
-    "Good representations for control",
-    "Disentangled representations",
-    "NeRF — Neural Radiance Fields",
-    "3D Gaussian Splatting",
-    "PointNet, PointNet++",
-    "Occupancy networks",
-    "Scene representations for robotics"
-  ]},
-  { id: "transformers", title: "Transformers & Attention", icon: "⚡", items: [
-    "Attention Is All You Need — reread",
-    "Multi-head attention mechanics",
-    "Positional encodings — sinusoidal, RoPE, ALiBi",
-    "Flash Attention",
-    "State space models — Mamba, S4",
-    "Mixture of experts",
-    "KV-cache and efficient inference",
-    "Sparse attention patterns",
-    "Cross-attention for multi-modal fusion",
-    "Perceiver and Perceiver IO"
-  ]},
-  { id: "locomotion", title: "Legged Locomotion", icon: "🦿", items: [
-    "Quadruped gaits — walk, trot, gallop, bound",
-    "Contact dynamics and ground reaction forces",
-    "Whole-body control",
-    "Central pattern generators",
-    "RL for locomotion",
-    "Rapid Motor Adaptation (Kumar et al.)",
-    "Quadrupedal locomotion on challenging terrain",
-    "Extreme parkour with legged robots",
-    "Sim-to-real for locomotion",
-    "Terrain classification and traversability",
-    "Proprioception vs exteroception"
-  ]},
-  { id: "perception", title: "Perception for Robotics", icon: "📡", items: [
-    "SLAM — visual, LiDAR, multi-modal",
-    "Visual odometry",
-    "LiDAR processing — FAST-LIO, FAST-LIO2",
-    "Semantic SLAM — ConceptFusion, OpenScene",
-    "Hydra — hierarchical scene graphs",
-    "BEV representations",
-    "Depth estimation — stereo, monocular",
-    "Sensor fusion — Kalman, factor graphs, attention",
-    "3D instance segmentation",
-    "Place recognition and loop closure",
-    "Active SLAM — where to look next"
-  ]},
-  { id: "sim2real", title: "Sim-to-Real Transfer", icon: "🔄", items: [
-    "Domain randomisation",
-    "Domain adaptation",
-    "System identification",
-    "Digital twins",
-    "The sim-to-real gap",
-    "NVIDIA Isaac Sim and Omniverse",
-    "MuJoCo ecosystem",
-    "Gazebo",
-    "URLab (from your lab!)",
-    "PyBullet",
-    "When sim helps and where it fails"
-  ]},
-  { id: "planning", title: "Planning & Decision-Making", icon: "🗺", items: [
-    "Classical planning — A*, RRT, RRT*, PRM",
-    "Trajectory optimisation",
-    "Model Predictive Control",
-    "Diffusion for planning — Diffuser",
-    "DiPPeR — from your lab",
-    "Planning with learned models",
-    "Task and motion planning (TAMP)",
-    "Belief space planning",
-    "Monte Carlo Tree Search for robotics",
-    "Information-theoretic planning"
-  ]},
-  { id: "multiagent", title: "Multi-Agent & Swarms", icon: "🐝", items: [
-    "Multi-agent RL — MAPPO, QMIX, MADDPG",
-    "Communication in multi-agent systems",
-    "Emergent communication",
-    "Multi-robot exploration and coordination",
-    "Adversarial multi-agent dynamics",
-    "Swarm intelligence — flocking, foraging",
-    "Decentralised decision-making",
-    "Multi-robot SLAM"
-  ]},
-  { id: "continual", title: "Continual & Meta-Learning", icon: "🔁", items: [
-    "Catastrophic forgetting",
-    "Elastic Weight Consolidation",
-    "Progressive Neural Networks",
-    "MAML, Reptile, Prototypical Networks",
-    "Few-shot learning for robotics",
-    "Context-conditional adaptation",
-    "Online learning and adaptation",
-    "Learning to learn dynamics models",
-    "Rapid adaptation for locomotion"
-  ]},
-  { id: "qd", title: "Quality-Diversity & Evolution", icon: "🧪", items: [
-    "Robots that adapt like animals (Cully, Nature)",
-    "MAP-Elites algorithm",
-    "CMA-ME",
-    "Differentiable Quality-Diversity",
-    "Behavioural repertoires for damage recovery",
-    "Novelty search with local competition",
-    "NEAT, HyperNEAT",
-    "Evolution strategies — OpenAI ES, CMA-ES",
-    "Evolutionary open-ended learning"
-  ]},
-  { id: "cyber", title: "Cyber-Physical Security", icon: "🛡", items: [
-    "Software-defined radio basics",
-    "Network anomaly detection",
-    "Adversarial attacks on robot perception",
-    "Sensor spoofing and countermeasures",
-    "Communication-aware planning",
-    "Resilient autonomy under jamming",
-    "Cyber-physical threat modelling",
-    "Attack graphs for autonomous systems"
-  ]},
-  { id: "efficient", title: "Efficient ML", icon: "⚙", items: [
-    "Knowledge distillation",
-    "Pruning and quantisation",
-    "Mixture of experts",
-    "LoRA and parameter-efficient fine-tuning",
-    "Gradient checkpointing, mixed precision",
-    "TinyML and edge deployment",
-    "Neural architecture search",
-    "Sample-efficient RL",
-    "DeepSeek's efficiency innovations"
-  ]},
-  { id: "uncertainty", title: "Bayesian & Uncertainty", icon: "📊", items: [
-    "MC Dropout, deep ensembles",
-    "Evidential deep learning",
-    "Conformal prediction (you know this!)",
-    "Gaussian processes for robotics",
-    "Epistemic vs aleatoric uncertainty",
-    "Uncertainty-aware planning",
-    "Out-of-distribution detection",
-    "Neural network calibration"
-  ]},
-  { id: "diffusion", title: "Diffusion Models", icon: "🌊", items: [
-    "DDPM fundamentals",
-    "Score-based generative modelling",
-    "Diffusion for planning and decisions",
-    "Stable Diffusion, DALL-E",
-    "Video generation — Sora, Runway",
-    "Diffusion for 3D generation",
-    "Diffusion policies for robotics",
-    "Classifier-free guidance"
-  ]},
-  { id: "extreme", title: "Extreme Environment Robotics", icon: "🚀", items: [
-    "Mars rover autonomy — Perseverance, Curiosity",
-    "Lunar robotics and Artemis",
-    "Dragonfly Titan mission",
-    "Autonomous underwater vehicles",
-    "Sonar-based perception",
-    "Subsea navigation without GPS",
-    "Nuclear decommissioning robotics",
-    "Robots in radiation environments",
-    "Search and rescue robotics"
-  ]}
-];
-
-const groups = {
-  all:      { label: "all",       ids: null },
-  core:     { label: "core",      ids: ["world-models", "open-ended", "curiosity", "rl"] },
-  robotics: { label: "robotics",  ids: ["foundation-robotics", "locomotion", "perception", "sim2real", "planning"] },
-  ml:       { label: "ml",        ids: ["vlm", "representation", "transformers", "efficient", "diffusion", "uncertainty"] },
-  frontier: { label: "frontier",  ids: ["multiagent", "continual", "qd", "cyber", "extreme", "open-ended"] },
-};
-
-const STORAGE_KEY = "ahmed-reading-list-v1";
+const categories = window.READING_CATEGORIES;
+const groups = window.READING_GROUPS;
+const STORAGE_KEY = window.READING_STORAGE_KEY;
 
 const state = {
   completed: new Set(),
-  expanded: null,
+  notes: {},          // { itemKey: { text, updatedAt } }
+  expanded: null,     // category id
+  openNote: null,     // item key being edited inline
   filter: "all",
   query: "",
+  dirty: false,       // unsynced changes since last successful push
+  lastSync: null,     // ISO timestamp of last successful push
+  syncing: false,     // in-flight push
 };
 
 function load() {
@@ -648,21 +499,38 @@ function load() {
     if (!raw) return;
     const data = JSON.parse(raw);
     if (Array.isArray(data.completed)) state.completed = new Set(data.completed);
+    if (data.notes && typeof data.notes === "object") state.notes = data.notes;
     if (typeof data.filter === "string") state.filter = data.filter;
+    if (typeof data.dirty === "boolean") state.dirty = data.dirty;
+    if (typeof data.lastSync === "string") state.lastSync = data.lastSync;
   } catch (e) {}
 }
 function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       completed: [...state.completed],
+      notes: state.notes,
       filter: state.filter,
+      dirty: state.dirty,
+      lastSync: state.lastSync,
       savedAt: new Date().toISOString(),
     }));
   } catch (e) {}
 }
+function markDirty() { state.dirty = true; updateSyncStatus(); }
+const saveDebounced = (() => {
+  let t;
+  return () => { clearTimeout(t); t = setTimeout(save, 250); };
+})();
 
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+function autosize(ta) {
+  if (!ta) return;
+  ta.style.height = "auto";
+  ta.style.height = ta.scrollHeight + "px";
 }
 function highlight(text, q) {
   const safe = escapeHtml(text);
@@ -697,6 +565,12 @@ function renderFilters() {
   });
 }
 
+function itemMatchesQuery(catId, idx, itemText, q) {
+  if (itemText.toLowerCase().includes(q)) return true;
+  const note = state.notes[catId + "-" + idx];
+  return !!(note && note.text && note.text.toLowerCase().includes(q));
+}
+
 function getDisplayedCategories() {
   const g = groups[state.filter] || groups.all;
   let cats = g.ids ? categories.filter(c => g.ids.includes(c.id)) : categories;
@@ -705,8 +579,8 @@ function getDisplayedCategories() {
     cats = cats
       .map(c => {
         const titleHit = c.title.toLowerCase().includes(q);
-        const matched = c.items.filter(it => it.toLowerCase().includes(q));
-        if (titleHit || matched.length > 0) return c;
+        const matched = c.items.some((it, i) => itemMatchesQuery(c.id, i, it, q));
+        if (titleHit || matched) return c;
         return null;
       })
       .filter(Boolean);
@@ -743,7 +617,13 @@ function renderGrid() {
     card.className = "card" + (expanded ? " expanded" : "");
 
     const completedCount = cat.items.filter((_, i) => state.completed.has(cat.id + "-" + i)).length;
+    const noteCount = cat.items.filter((_, i) => {
+      const n = state.notes[cat.id + "-" + i];
+      return n && n.text && n.text.trim().length > 0;
+    }).length;
     const progress = (completedCount / cat.items.length) * 100;
+    const metaText = `${completedCount}/${cat.items.length} explored` +
+      (noteCount > 0 ? ` · ${noteCount} note${noteCount === 1 ? "" : "s"}` : "");
 
     const header = document.createElement("div");
     header.className = "card-header";
@@ -751,13 +631,14 @@ function renderGrid() {
       <span class="card-icon">${escapeHtml(cat.icon)}</span>
       <div class="card-info">
         <div class="card-title">${highlight(cat.title, q)}</div>
-        <div class="card-meta">${completedCount}/${cat.items.length} explored</div>
+        <div class="card-meta">${metaText}</div>
       </div>
       <div class="ring" style="background: conic-gradient(${accent} ${progress * 3.6}deg, ${rule} 0deg);"><div class="ring-inner">${Math.round(progress)}</div></div>
     `;
     header.onclick = () => {
       if (q) return;
       state.expanded = state.expanded === cat.id ? null : cat.id;
+      state.openNote = null;
       render();
     };
     card.appendChild(header);
@@ -772,22 +653,91 @@ function renderGrid() {
       cat.items.forEach((text, i) => {
         const key = cat.id + "-" + i;
         const done = state.completed.has(key);
-        if (q && !text.toLowerCase().includes(q.toLowerCase()) && !cat.title.toLowerCase().includes(q.toLowerCase())) return;
+        const note = state.notes[key];
+        const hasNote = !!(note && note.text && note.text.trim().length > 0);
+        const titleHit = cat.title.toLowerCase().includes((q || "").toLowerCase());
+        if (q && !titleHit && !itemMatchesQuery(cat.id, i, text, q.toLowerCase())) return;
 
         const row = document.createElement("div");
-        row.className = "item" + (done ? " done" : "");
-        row.innerHTML = `
-          <div class="checkbox">${done ? "✓" : ""}</div>
-          <span class="item-text">${highlight(text, q)}</span>
-        `;
-        row.onclick = (e) => {
+        row.className = "item" + (done ? " done" : "") + (hasNote ? " has-note" : "");
+
+        const checkbox = document.createElement("div");
+        checkbox.className = "checkbox";
+        checkbox.textContent = done ? "✓" : "";
+        checkbox.onclick = (e) => {
           e.stopPropagation();
           if (state.completed.has(key)) state.completed.delete(key);
           else state.completed.add(key);
           save();
           render();
         };
+
+        const body = document.createElement("div");
+        body.className = "item-body";
+        body.innerHTML = `
+          <span class="item-text">${highlight(text, q)}</span>
+          <span class="note-indicator" title="${hasNote ? "has notes" : "click to add notes"}">${hasNote ? "●" : "+"}</span>
+        `;
+        body.onclick = (e) => {
+          e.stopPropagation();
+          state.openNote = state.openNote === key ? null : key;
+          render();
+          if (state.openNote === key) {
+            const ta = document.querySelector(`textarea[data-key="${key}"]`);
+            if (ta) {
+              ta.focus();
+              ta.setSelectionRange(ta.value.length, ta.value.length);
+            }
+          }
+        };
+
+        row.appendChild(checkbox);
+        row.appendChild(body);
         items.appendChild(row);
+
+        if (state.openNote === key) {
+          const editor = document.createElement("div");
+          editor.className = "note-editor";
+          const placeholder = "Notes on this paper… markdown supported (**bold**, *italic*, `code`, [link](url))";
+          editor.innerHTML = `
+            <textarea data-key="${escapeHtml(key)}" placeholder="${placeholder}">${escapeHtml(note ? note.text : "")}</textarea>
+            <div class="note-meta">
+              <span class="note-stamp">${note && note.updatedAt ? "updated " + new Date(note.updatedAt).toLocaleString() : "new note"}</span>
+              <span class="note-actions">
+                <button class="note-btn note-clear" type="button">clear</button>
+                <button class="note-btn note-close" type="button">close</button>
+              </span>
+            </div>
+          `;
+          const ta = editor.querySelector("textarea");
+          ta.addEventListener("click", e => e.stopPropagation());
+          requestAnimationFrame(() => autosize(ta));
+          ta.addEventListener("input", () => {
+            autosize(ta);
+            state.notes[key] = { text: ta.value, updatedAt: new Date().toISOString() };
+            state.dirty = true;
+            saveDebounced();
+            updateSyncStatus();
+          });
+          editor.querySelector(".note-clear").onclick = (e) => {
+            e.stopPropagation();
+            if (!confirm("Clear this note?")) return;
+            delete state.notes[key];
+            SYNC.addTombstone(key);
+            state.dirty = true;
+            ta.value = "";
+            save();
+            render();
+          };
+          editor.querySelector(".note-close").onclick = (e) => {
+            e.stopPropagation();
+            state.openNote = null;
+            save();
+            render();
+          };
+          editor.onclick = e => e.stopPropagation();
+          items.appendChild(editor);
+        }
       });
       card.appendChild(items);
     }
@@ -811,6 +761,7 @@ search.addEventListener("input", e => {
 document.getElementById("export-btn").onclick = () => {
   const blob = new Blob([JSON.stringify({
     completed: [...state.completed],
+    notes: state.notes,
     savedAt: new Date().toISOString(),
   }, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -829,11 +780,22 @@ document.getElementById("import-file").addEventListener("change", async (e) => {
   try {
     const text = await file.text();
     const data = JSON.parse(text);
+    let imported = 0;
     if (Array.isArray(data.completed)) {
       state.completed = new Set(data.completed);
+      imported = data.completed.length;
+    }
+    let noteCount = 0;
+    if (data.notes && typeof data.notes === "object") {
+      state.notes = data.notes;
+      noteCount = Object.keys(data.notes).length;
+    }
+    if (imported > 0 || noteCount > 0) {
+      if (noteCount > 0) state.dirty = true;
       save();
       render();
-      toast("imported " + data.completed.length + " items");
+      updateSyncStatus();
+      toast("imported " + imported + " items, " + noteCount + " notes");
     } else {
       toast("invalid file");
     }
@@ -844,15 +806,21 @@ document.getElementById("import-file").addEventListener("change", async (e) => {
 });
 
 document.getElementById("reset-btn").onclick = () => {
-  if (!confirm("Clear all progress? This can't be undone.")) return;
+  if (!confirm("Clear all progress AND notes locally? Use Sync afterwards if you want this reflected on GitHub.")) return;
+  // Tombstone every existing note so a subsequent sync removes them remotely
+  Object.keys(state.notes).forEach(k => SYNC.addTombstone(k));
   state.completed = new Set();
+  state.notes = {};
+  state.openNote = null;
+  state.dirty = true;
   save();
   render();
-  toast("reset");
+  toast("reset (sync to push)");
 };
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "/" && document.activeElement !== search) {
+  const inTextarea = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+  if (e.key === "/" && document.activeElement !== search && !inTextarea) {
     e.preventDefault();
     search.focus();
   } else if (e.key === "Escape" && document.activeElement === search) {
@@ -860,8 +828,91 @@ document.addEventListener("keydown", (e) => {
     state.query = "";
     render();
     search.blur();
+  } else if (e.key === "Escape" && inTextarea) {
+    document.activeElement.blur();
+    state.openNote = null;
+    save();
+    render();
   }
 });
+
+window.addEventListener("pagehide", save);
+
+// ---------- Sync ----------
+function fmtRelativeTime(iso) {
+  if (!iso) return "never";
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return "just now";
+  if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+  if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+  if (diff < 604800) return Math.floor(diff / 86400) + "d ago";
+  return d.toLocaleDateString();
+}
+
+function updateSyncStatus() {
+  const el = document.getElementById("sync-status");
+  if (!el) return;
+  const label = el.querySelector(".sync-label");
+  el.classList.remove("dirty", "synced", "error");
+  if (state.syncing) {
+    el.classList.add("dirty");
+    label.textContent = "syncing…";
+  } else if (state.dirty) {
+    el.classList.add("dirty");
+    label.textContent = "unsynced";
+  } else if (state.lastSync) {
+    el.classList.add("synced");
+    label.textContent = "synced " + fmtRelativeTime(state.lastSync);
+  } else {
+    label.textContent = "not synced";
+  }
+}
+
+async function doSync() {
+  if (state.syncing) return;
+  state.syncing = true;
+  updateSyncStatus();
+  const result = await SYNC.syncNow(state.notes);
+  state.syncing = false;
+  if (result.ok) {
+    state.dirty = false;
+    state.lastSync = new Date().toISOString();
+    save();
+    updateSyncStatus();
+    toast("synced to github ✓");
+  } else if (result.reason === "no-pat" || result.reason === "bad-pat-cancelled") {
+    updateSyncStatus();
+  } else {
+    const el = document.getElementById("sync-status");
+    el.classList.remove("synced", "dirty");
+    el.classList.add("error");
+    el.querySelector(".sync-label").textContent = "sync failed";
+    toast("sync failed — check console");
+    console.error("sync failed", result.error);
+  }
+}
+
+document.getElementById("sync-btn").onclick = doSync;
+
+async function bootstrap() {
+  load();
+  render();
+  updateSyncStatus();
+  applyHash();
+  render();
+  const remote = await SYNC.loadRemote();
+  if (remote !== null) {
+    const tombs = SYNC.getTombstones();
+    const before = JSON.stringify(state.notes);
+    state.notes = SYNC.merge(state.notes, remote, tombs);
+    const changed = JSON.stringify(state.notes) !== before;
+    save();
+    updateSyncStatus();
+    // Don't tear down a textarea the user is typing into
+    if (changed && !state.openNote) render();
+  }
+}
 
 document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -877,8 +928,29 @@ document.getElementById('year').textContent = new Date().getFullYear();
   });
 })();
 
-load();
-render();
+function applyHash() {
+  const h = (location.hash || "").replace(/^#/, "");
+  if (!h) return;
+  const m = h.match(/^(.+)-(\d+)$/);
+  if (!m) return;
+  const catId = m[1];
+  const cat = categories.find(c => c.id === catId);
+  if (!cat) return;
+  state.expanded = catId;
+  state.openNote = h;
+  setTimeout(() => {
+    const ta = document.querySelector(`textarea[data-key="${h}"]`);
+    if (ta) {
+      ta.scrollIntoView({ behavior: "smooth", block: "center" });
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    }
+  }, 50);
+}
+
+window.addEventListener("hashchange", () => { applyHash(); render(); });
+
+bootstrap();
 </script>
 </body>
 </html>
