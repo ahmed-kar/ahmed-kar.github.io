@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notes · Ahmed Karim</title>
-  <meta name="description" content="Reading notes — thoughts and reflections on papers from the reading list." />
+  <title>Journal · Ahmed Karim</title>
+  <meta name="description" content="Free-form notes — anything I want to write down, not tied to a reading list." />
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
@@ -26,21 +26,21 @@
   </script>
 
   <style>
-    .notes-hero {
+    .journal-hero {
       padding: 36px 0 18px;
       border-bottom: 1px solid var(--rule);
       margin-bottom: 28px;
     }
-    .notes-hero .crumbs {
+    .journal-hero .crumbs {
       font-family: var(--mono);
       font-size: 0.78rem;
       color: var(--text-faint);
       margin-bottom: 10px;
     }
-    .notes-hero .crumbs a { color: var(--text-muted); }
-    .notes-hero .crumbs a:hover { color: var(--accent); }
-    .notes-hero .crumbs .sep { color: var(--text-faint); padding: 0 6px; }
-    .notes-hero h1 {
+    .journal-hero .crumbs a { color: var(--text-muted); }
+    .journal-hero .crumbs a:hover { color: var(--accent); }
+    .journal-hero .crumbs .sep { color: var(--text-faint); padding: 0 6px; }
+    .journal-hero h1 {
       font-family: var(--mono);
       font-size: 1.7rem;
       font-weight: 700;
@@ -48,7 +48,7 @@
       margin: 0 0 6px;
       color: var(--text);
     }
-    .notes-hero .subtitle {
+    .journal-hero .subtitle {
       font-family: var(--mono);
       font-size: 0.86rem;
       color: var(--text-muted);
@@ -113,36 +113,11 @@
       background: var(--bg-soft);
       text-decoration: none;
     }
-
-    .filters {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
-    }
-    .filter-pill {
-      padding: 5px 12px;
-      border-radius: 3px;
-      border: 1px solid var(--rule);
-      background: transparent;
-      color: var(--text-muted);
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .filter-pill:hover { color: var(--text); border-color: var(--text-muted); }
-    .filter-pill.active {
-      background: var(--bg-soft);
+    .icon-btn.primary {
       color: var(--accent);
       border-color: var(--accent);
     }
-    .filter-pill .count {
-      color: var(--text-faint);
-      margin-left: 6px;
-      font-size: 0.7rem;
-    }
-    .filter-pill.active .count { color: var(--accent-soft); }
+    .icon-btn.primary:hover { background: var(--bg-soft); }
 
     .summary {
       font-family: var(--mono);
@@ -162,9 +137,17 @@
       border-radius: 6px;
       padding: 16px 18px;
       background: var(--bg);
-      transition: border-color 0.15s, transform 0.15s;
+      transition: border-color 0.15s;
     }
     .note-card:hover { border-color: var(--text-muted); }
+    .note-card.editing {
+      border-color: var(--accent);
+      background: var(--bg);
+    }
+    .note-card.composing {
+      border-color: var(--accent);
+      background: var(--bg);
+    }
 
     .note-card-header {
       display: flex;
@@ -174,13 +157,7 @@
       margin-bottom: 10px;
       flex-wrap: wrap;
     }
-    .note-card-title-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-      flex: 1;
-    }
+    .note-card-title-wrap { min-width: 0; flex: 1; }
     .note-card-title {
       font-family: var(--mono);
       font-size: 0.94rem;
@@ -189,47 +166,13 @@
       letter-spacing: -0.005em;
       line-height: 1.4;
       word-break: break-word;
+      margin: 0;
     }
-    .note-card-title a {
-      color: inherit;
-      text-decoration: none;
+    .note-card-title.untitled {
+      color: var(--text-faint);
+      font-weight: 400;
+      font-style: italic;
     }
-    .note-card-title a:hover {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .note-card-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .cat-tag {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      background: var(--bg-soft);
-      border: 1px solid var(--rule);
-      border-radius: 3px;
-      padding: 2px 8px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .cat-tag:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-    .cat-tag .icon { margin-right: 4px; }
-    .done-badge {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      border-radius: 3px;
-      padding: 2px 7px;
-      background: transparent;
-    }
-
     .note-card-actions {
       display: flex;
       gap: 4px;
@@ -307,13 +250,39 @@
       font-family: var(--mono);
       font-size: 0.7rem;
       color: var(--text-faint);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    /* Edit mode */
-    .note-card.editing { border-color: var(--accent); }
+    /* Editor */
     .note-card .editor { display: none; }
-    .note-card.editing .note-card-body { display: none; }
-    .note-card.editing .editor { display: block; }
+    .note-card.editing .note-card-body,
+    .note-card.editing .static-title { display: none; }
+    .note-card.editing .editor,
+    .note-card.composing .editor { display: block; }
+    .note-card.composing .static-title { display: none; }
+
+    .editor-title {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      background: var(--bg-soft);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.94rem;
+      font-weight: 700;
+      letter-spacing: -0.005em;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+    }
+    .editor-title:focus { border-color: var(--accent); }
+    .editor-title::placeholder { color: var(--text-faint); font-weight: 400; font-style: italic; }
+
     .editor textarea {
       width: 100%;
       min-height: 140px;
@@ -333,11 +302,14 @@
       display: block;
     }
     .editor textarea:focus { border-color: var(--accent); }
+    .editor textarea::placeholder { color: var(--text-faint); }
     .editor-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-top: 8px;
+      gap: 8px;
+      flex-wrap: wrap;
       font-family: var(--mono);
       font-size: 0.72rem;
       color: var(--text-faint);
@@ -413,31 +385,27 @@
 
   <main>
 
-    <section class="notes-hero">
+    <section class="journal-hero">
       <div class="crumbs">
         <a href="index.html">← Home</a>
         <span class="sep">·</span>
-        <a href="reading.html">← Reading</a>
+        <a href="notes.html">reading notes</a>
       </div>
-      <h1>Notes</h1>
-      <p class="subtitle">Thoughts on what I'm reading. Each note is tied to a paper from the reading list — same browser storage, so the two pages stay in sync. Markdown supported (<code>**bold**</code>, <code>*italic*</code>, <code>`code`</code>, links, lists).</p>
+      <h1>Journal</h1>
+      <p class="subtitle">Free-form notes — anything I want to jot down. Saved locally, synced to GitHub for cross-device access. Markdown supported (<code>**bold**</code>, <code>*italic*</code>, <code>`code`</code>, links, lists).</p>
     </section>
 
     <div class="toolbar">
-      <input id="search" class="search" type="text" placeholder="Search notes, papers, categories…  ( / to focus )" />
+      <input id="search" class="search" type="text" placeholder="Search notes…  ( / to focus )" />
       <select id="sort" class="sort-select" title="Sort order">
         <option value="recent">recent first</option>
         <option value="oldest">oldest first</option>
-        <option value="category">by category</option>
-        <option value="alpha">a–z by paper</option>
+        <option value="alpha">a–z by title</option>
       </select>
       <span class="sync-status" id="sync-status" title="Cross-device sync status"><span class="dot"></span><span class="sync-label">…</span></span>
-      <button class="icon-btn" id="sync-btn" title="Push notes to GitHub (cross-device)">sync</button>
-      <a class="icon-btn" href="reading.html" title="Back to reading list">reading →</a>
-      <a class="icon-btn" href="journal.html" title="Open free-form journal">journal →</a>
+      <button class="icon-btn" id="sync-btn" title="Push journal to GitHub (cross-device)">sync</button>
+      <button class="icon-btn primary" id="new-btn" title="Compose a new note (n)">+ new</button>
     </div>
-
-    <div class="filters" id="filters"></div>
 
     <div class="summary" id="summary"></div>
 
@@ -450,33 +418,36 @@
 
   <div id="toast" class="toast"></div>
 
-<script src="reading-data.js"></script>
 <script src="sync.js"></script>
 <script>
-const categories = window.READING_CATEGORIES;
-const STORAGE_KEY = window.READING_STORAGE_KEY;
-
-const catById = Object.fromEntries(categories.map(c => [c.id, c]));
+const STORAGE_KEY = "ahmed-journal-v1";
+const JOURNAL_SYNC = window.createSync({
+  filePath: "journal.json",
+  tombKey:  "ahmed-journal-tombstones-v1",
+});
 
 const state = {
-  completed: new Set(),
-  notes: {},          // { itemKey: { text, updatedAt } }
+  notes: {},          // { id: { title, body, createdAt, updatedAt } }
   query: "",
   sort: "recent",
-  catFilter: "all",
-  editing: null,      // itemKey being edited
-  draft: "",          // current edit textarea content (in-memory)
+  editing: null,      // id being edited (or "new" for the composer)
+  draftTitle: "",
+  draftBody: "",
   dirty: false,
   lastSync: null,
   syncing: false,
 };
+
+function newId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return "j-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+}
 
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const data = JSON.parse(raw);
-    if (Array.isArray(data.completed)) state.completed = new Set(data.completed);
     if (data.notes && typeof data.notes === "object") state.notes = data.notes;
     if (typeof data.dirty === "boolean") state.dirty = data.dirty;
     if (typeof data.lastSync === "string") state.lastSync = data.lastSync;
@@ -484,11 +455,7 @@ function load() {
 }
 function save() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const existing = raw ? JSON.parse(raw) : {};
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      ...existing,
-      completed: [...state.completed],
       notes: state.notes,
       dirty: state.dirty,
       lastSync: state.lastSync,
@@ -511,29 +478,21 @@ function renderMarkdown(text) {
   if (!text) return "";
   let s = escapeHtml(text);
 
-  // Fenced code blocks ```...```
   s = s.replace(/```[a-zA-Z0-9]*\n?([\s\S]*?)```/g, (_, code) =>
-    ` PRE ${code.replace(/\n+$/,"")} ENDPRE `);
-
-  // Inline code `...`
-  s = s.replace(/`([^`\n]+)`/g, ' C $1 ENDC ');
-
-  // Bold then italic
+    ` PRE ${code.replace(/\n+$/,"")} ENDPRE `);
+  s = s.replace(/`([^`\n]+)`/g, ' C $1 ENDC ');
   s = s.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
-
-  // Links [text](url)
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => {
-    if (!/^(https?:\/\/|mailto:|\/|#|reading\.html|notes\.html)/i.test(u)) return m;
+    if (!/^(https?:\/\/|mailto:|\/|#|reading\.html|notes\.html|journal\.html)/i.test(u)) return m;
     return `<a href="${u.replace(/"/g,'&quot;')}" target="_blank" rel="noopener">${t}</a>`;
   });
 
-  // Paragraphs / bullet lists
   const blocks = s.split(/\n{2,}/);
   const html = blocks.map(b => {
     b = b.replace(/^\n+|\n+$/g, "");
     if (!b) return "";
-    if (b.includes(" PRE ")) return b; // handled below
+    if (b.includes(" PRE ")) return b;
     const lines = b.split("\n");
     if (lines.length > 0 && lines.every(l => /^\s*[-*]\s+/.test(l))) {
       return "<ul>" + lines.map(l => "<li>" + l.replace(/^\s*[-*]\s+/, "") + "</li>").join("") + "</ul>";
@@ -541,15 +500,13 @@ function renderMarkdown(text) {
     return "<p>" + lines.join("<br>") + "</p>";
   }).join("");
 
-  // Restore code markers
   return html
-    .replace(/ PRE ([\s\S]*?) ENDPRE /g, (_, code) => `<pre><code>${code}</code></pre>`)
-    .replace(/ C ([\s\S]*?) ENDC /g, (_, code) => `<code>${code}</code>`);
+    .replace(/ PRE ([\s\S]*?) ENDPRE /g, (_, code) => `<pre><code>${code}</code></pre>`)
+    .replace(/ C ([\s\S]*?) ENDC /g, (_, code) => `<code>${code}</code>`);
 }
 
 function highlight(html, q) {
   if (!q) return html;
-  // Highlight only outside HTML tags
   const re = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
   let out = "";
   let inTag = false;
@@ -581,110 +538,6 @@ function toast(msg) {
   toast._t = setTimeout(() => el.classList.remove("show"), 1800);
 }
 
-function parseKey(key) {
-  // key format: "<categoryId>-<index>" — but some cat ids contain dashes
-  // Find the last "-<digits>" suffix
-  const m = key.match(/^(.+)-(\d+)$/);
-  if (!m) return null;
-  return { catId: m[1], idx: parseInt(m[2], 10) };
-}
-
-function getNotesEntries() {
-  return Object.entries(state.notes)
-    .filter(([_, v]) => v && v.text && v.text.trim().length > 0)
-    .map(([key, v]) => {
-      const parsed = parseKey(key);
-      if (!parsed) return null;
-      const cat = catById[parsed.catId];
-      if (!cat) return null;
-      const itemText = cat.items[parsed.idx];
-      if (!itemText) return null;
-      return {
-        key,
-        catId: parsed.catId,
-        cat,
-        idx: parsed.idx,
-        title: itemText,
-        text: v.text,
-        updatedAt: v.updatedAt || "",
-        done: state.completed.has(key),
-      };
-    })
-    .filter(Boolean);
-}
-
-function getDisplayed() {
-  let entries = getNotesEntries();
-
-  if (state.catFilter !== "all") {
-    entries = entries.filter(e => e.catId === state.catFilter);
-  }
-
-  const q = state.query.trim().toLowerCase();
-  if (q) {
-    entries = entries.filter(e =>
-      e.title.toLowerCase().includes(q) ||
-      e.text.toLowerCase().includes(q) ||
-      e.cat.title.toLowerCase().includes(q)
-    );
-  }
-
-  switch (state.sort) {
-    case "recent":
-      entries.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
-      break;
-    case "oldest":
-      entries.sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
-      break;
-    case "category":
-      entries.sort((a, b) =>
-        a.cat.title.localeCompare(b.cat.title) ||
-        a.title.localeCompare(b.title)
-      );
-      break;
-    case "alpha":
-      entries.sort((a, b) => a.title.localeCompare(b.title));
-      break;
-  }
-  return entries;
-}
-
-function renderFilters() {
-  const el = document.getElementById("filters");
-  el.innerHTML = "";
-
-  const allEntries = getNotesEntries();
-  const counts = {};
-  allEntries.forEach(e => { counts[e.catId] = (counts[e.catId] || 0) + 1; });
-
-  const all = document.createElement("button");
-  all.className = "filter-pill" + (state.catFilter === "all" ? " active" : "");
-  all.innerHTML = `all <span class="count">${allEntries.length}</span>`;
-  all.onclick = () => { state.catFilter = "all"; render(); };
-  el.appendChild(all);
-
-  // Categories with at least one note, in original order
-  categories.forEach(cat => {
-    if (!counts[cat.id]) return;
-    const btn = document.createElement("button");
-    btn.className = "filter-pill" + (state.catFilter === cat.id ? " active" : "");
-    btn.innerHTML = `${escapeHtml(cat.icon)} ${escapeHtml(cat.title)} <span class="count">${counts[cat.id]}</span>`;
-    btn.onclick = () => { state.catFilter = cat.id; render(); };
-    el.appendChild(btn);
-  });
-}
-
-function renderSummary(entries) {
-  const total = getNotesEntries().length;
-  const summary = document.getElementById("summary");
-  if (total === 0) { summary.textContent = ""; return; }
-  if (entries.length === total) {
-    summary.textContent = `${total} note${total === 1 ? "" : "s"} across ${new Set(getNotesEntries().map(e => e.catId)).size} categor${new Set(getNotesEntries().map(e => e.catId)).size === 1 ? "y" : "ies"}.`;
-  } else {
-    summary.textContent = `showing ${entries.length} of ${total} note${total === 1 ? "" : "s"}.`;
-  }
-}
-
 function fmtDate(iso) {
   if (!iso) return "—";
   try {
@@ -699,154 +552,289 @@ function fmtDate(iso) {
   } catch { return iso; }
 }
 
-function renderFeed() {
-  const feed = document.getElementById("feed");
-  feed.innerHTML = "";
-  const entries = getDisplayed();
-  renderSummary(entries);
+function getEntries() {
+  return Object.entries(state.notes)
+    .filter(([_, v]) => v && typeof v === "object")
+    .map(([id, v]) => ({
+      id,
+      title: (v.title || "").trim(),
+      body:  v.body || "",
+      createdAt: v.createdAt || v.updatedAt || "",
+      updatedAt: v.updatedAt || "",
+    }));
+}
 
-  if (entries.length === 0) {
-    const total = getNotesEntries().length;
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    if (total === 0) {
-      empty.innerHTML = `
-        <span class="big">·</span>
-        No notes yet.<br>
-        Head over to the <a href="reading.html">reading list</a> and click any paper to add your thoughts.
-      `;
-    } else {
-      empty.innerHTML = `No notes match the current filters.`;
-    }
-    feed.appendChild(empty);
-    return;
+function getDisplayed() {
+  let entries = getEntries();
+  const q = state.query.trim().toLowerCase();
+  if (q) {
+    entries = entries.filter(e =>
+      e.title.toLowerCase().includes(q) ||
+      e.body.toLowerCase().includes(q)
+    );
   }
+  switch (state.sort) {
+    case "recent":
+      entries.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+      break;
+    case "oldest":
+      entries.sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
+      break;
+    case "alpha":
+      entries.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+      break;
+  }
+  return entries;
+}
 
-  const q = state.query.trim();
+function renderSummary(shown) {
+  const total = getEntries().length;
+  const summary = document.getElementById("summary");
+  if (total === 0) { summary.textContent = ""; return; }
+  if (shown === total) {
+    summary.textContent = `${total} note${total === 1 ? "" : "s"}.`;
+  } else {
+    summary.textContent = `showing ${shown} of ${total} note${total === 1 ? "" : "s"}.`;
+  }
+}
 
-  entries.forEach(e => {
-    const card = document.createElement("article");
-    card.className = "note-card" + (state.editing === e.key ? " editing" : "");
-
-    const titleHtml = highlight(escapeHtml(e.title), q);
-    const bodyHtml = highlight(renderMarkdown(e.text), q);
-
-    const header = document.createElement("div");
-    header.className = "note-card-header";
-    header.innerHTML = `
-      <div class="note-card-title-wrap">
-        <div class="note-card-title">
-          <a href="reading.html#${escapeHtml(e.key)}">${titleHtml}</a>
-        </div>
-        <div class="note-card-tags">
-          <span class="cat-tag" data-cat="${escapeHtml(e.catId)}">
-            <span class="icon">${escapeHtml(e.cat.icon)}</span>${escapeHtml(e.cat.title)}
-          </span>
-          ${e.done ? '<span class="done-badge">read</span>' : ''}
-        </div>
-      </div>
-      <div class="note-card-actions">
-        <button class="note-action edit-btn" type="button">edit</button>
-        <button class="note-action danger delete-btn" type="button">delete</button>
-      </div>
-    `;
-    card.appendChild(header);
-
-    const body = document.createElement("div");
-    body.className = "note-card-body";
-    body.innerHTML = bodyHtml;
-    card.appendChild(body);
-
-    // Editor (hidden unless editing)
-    const editor = document.createElement("div");
-    editor.className = "editor";
-    editor.innerHTML = `
-      <textarea data-key="${escapeHtml(e.key)}" placeholder="Markdown supported (**bold**, *italic*, \`code\`, [link](url), - bullets)"></textarea>
+function buildComposerCard() {
+  const card = document.createElement("article");
+  card.className = "note-card composing";
+  card.innerHTML = `
+    <div class="editor">
+      <input class="editor-title" type="text" placeholder="title (optional)" />
+      <textarea placeholder="Write anything… markdown supported (**bold**, *italic*, \`code\`, [link](url), - bullets)"></textarea>
       <div class="editor-meta">
-        <span>updated ${fmtDate(e.updatedAt)}</span>
+        <span>new note</span>
         <span class="editor-actions">
           <button class="editor-btn cancel-btn" type="button">cancel</button>
           <button class="editor-btn primary save-btn" type="button">save</button>
         </span>
       </div>
-    `;
-    card.appendChild(editor);
+    </div>
+  `;
+  const titleEl = card.querySelector(".editor-title");
+  const ta = card.querySelector("textarea");
+  titleEl.value = state.draftTitle || "";
+  ta.value = state.draftBody || "";
+  requestAnimationFrame(() => autosize(ta));
+  titleEl.addEventListener("input", () => { state.draftTitle = titleEl.value; });
+  ta.addEventListener("input", () => { state.draftBody = ta.value; autosize(ta); });
 
-    const footer = document.createElement("div");
-    footer.className = "note-card-footer";
-    footer.textContent = "updated " + fmtDate(e.updatedAt);
-    card.appendChild(footer);
+  const finishKeys = (ev) => {
+    if (ev.key === "Escape") { ev.preventDefault(); cancelEdit(); }
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === "Enter") { ev.preventDefault(); saveNew(); }
+  };
+  titleEl.addEventListener("keydown", finishKeys);
+  ta.addEventListener("keydown", finishKeys);
 
-    // Wire actions
-    const ta = editor.querySelector("textarea");
-    ta.value = state.editing === e.key ? state.draft : e.text;
-    if (state.editing === e.key) requestAnimationFrame(() => autosize(ta));
-    ta.addEventListener("input", () => { state.draft = ta.value; autosize(ta); });
-    ta.addEventListener("keydown", (ev) => {
-      if (ev.key === "Escape") { ev.preventDefault(); cancelEdit(); }
-      if ((ev.metaKey || ev.ctrlKey) && ev.key === "Enter") { ev.preventDefault(); saveEdit(e.key); }
-    });
+  card.querySelector(".cancel-btn").onclick = cancelEdit;
+  card.querySelector(".save-btn").onclick = saveNew;
+  return card;
+}
 
-    header.querySelector(".edit-btn").onclick = () => {
-      state.editing = e.key;
-      state.draft = e.text;
-      render();
-      const t = document.querySelector(`textarea[data-key="${e.key}"]`);
-      if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
-    };
-    header.querySelector(".delete-btn").onclick = () => {
-      if (!confirm("Delete this note locally? Sync afterwards to remove it on GitHub too.")) return;
-      delete state.notes[e.key];
-      SYNC.addTombstone(e.key);
-      state.dirty = true;
-      if (state.editing === e.key) { state.editing = null; state.draft = ""; }
-      save();
-      render();
-      updateSyncStatus();
-      toast("note deleted (sync to push)");
-    };
-    editor.querySelector(".cancel-btn").onclick = cancelEdit;
-    editor.querySelector(".save-btn").onclick = () => saveEdit(e.key);
+function buildNoteCard(e) {
+  const card = document.createElement("article");
+  const isEditing = state.editing === e.id;
+  card.className = "note-card" + (isEditing ? " editing" : "");
 
-    header.querySelector(".cat-tag").onclick = () => {
-      state.catFilter = e.catId;
-      render();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+  const q = state.query.trim();
+  const titleText = e.title || "";
+  const titleHtml = titleText
+    ? highlight(escapeHtml(titleText), q)
+    : '<span class="untitled">untitled</span>';
+  const bodyHtml = highlight(renderMarkdown(e.body), q);
 
-    feed.appendChild(card);
-  });
+  const header = document.createElement("div");
+  header.className = "note-card-header";
+  header.innerHTML = `
+    <div class="note-card-title-wrap static-title">
+      <h3 class="note-card-title${titleText ? "" : " untitled"}">${titleHtml}</h3>
+    </div>
+    <div class="note-card-actions">
+      <button class="note-action edit-btn" type="button">edit</button>
+      <button class="note-action danger delete-btn" type="button">delete</button>
+    </div>
+  `;
+  card.appendChild(header);
+
+  const body = document.createElement("div");
+  body.className = "note-card-body";
+  body.innerHTML = bodyHtml || '<p style="color:var(--text-faint);font-style:italic;">(empty)</p>';
+  card.appendChild(body);
+
+  // Editor
+  const editor = document.createElement("div");
+  editor.className = "editor";
+  editor.innerHTML = `
+    <input class="editor-title" type="text" placeholder="title (optional)" />
+    <textarea placeholder="Write anything… markdown supported"></textarea>
+    <div class="editor-meta">
+      <span>updated ${fmtDate(e.updatedAt)}</span>
+      <span class="editor-actions">
+        <button class="editor-btn cancel-btn" type="button">cancel</button>
+        <button class="editor-btn primary save-btn" type="button">save</button>
+      </span>
+    </div>
+  `;
+  card.appendChild(editor);
+
+  const footer = document.createElement("div");
+  footer.className = "note-card-footer";
+  const created = e.createdAt && e.createdAt !== e.updatedAt
+    ? `created ${fmtDate(e.createdAt)}`
+    : "";
+  footer.innerHTML = `<span>updated ${fmtDate(e.updatedAt)}</span>${created ? `<span>${created}</span>` : ""}`;
+  card.appendChild(footer);
+
+  // Wire editor
+  const titleEl = editor.querySelector(".editor-title");
+  const ta = editor.querySelector("textarea");
+  if (isEditing) {
+    titleEl.value = state.draftTitle;
+    ta.value = state.draftBody;
+    requestAnimationFrame(() => autosize(ta));
+  } else {
+    titleEl.value = e.title;
+    ta.value = e.body;
+  }
+  titleEl.addEventListener("input", () => { state.draftTitle = titleEl.value; });
+  ta.addEventListener("input", () => { state.draftBody = ta.value; autosize(ta); });
+  const finishKeys = (ev) => {
+    if (ev.key === "Escape") { ev.preventDefault(); cancelEdit(); }
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === "Enter") { ev.preventDefault(); saveEdit(e.id); }
+  };
+  titleEl.addEventListener("keydown", finishKeys);
+  ta.addEventListener("keydown", finishKeys);
+
+  header.querySelector(".edit-btn").onclick = () => {
+    state.editing = e.id;
+    state.draftTitle = e.title;
+    state.draftBody = e.body;
+    render();
+    const t = document.querySelector(`[data-edit-id="${e.id}"] textarea`);
+    if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
+  };
+  header.querySelector(".delete-btn").onclick = () => {
+    if (!confirm("Delete this note locally? Sync afterwards to remove it on GitHub too.")) return;
+    delete state.notes[e.id];
+    JOURNAL_SYNC.addTombstone(e.id);
+    state.dirty = true;
+    if (state.editing === e.id) { state.editing = null; state.draftTitle = ""; state.draftBody = ""; }
+    save();
+    render();
+    updateSyncStatus();
+    toast("note deleted (sync to push)");
+  };
+  editor.querySelector(".cancel-btn").onclick = cancelEdit;
+  editor.querySelector(".save-btn").onclick = () => saveEdit(e.id);
+
+  card.setAttribute("data-edit-id", e.id);
+  return card;
 }
 
 function cancelEdit() {
   state.editing = null;
-  state.draft = "";
+  state.draftTitle = "";
+  state.draftBody = "";
   render();
 }
 
-function saveEdit(key) {
-  const text = state.draft;
-  if (!text || !text.trim()) {
-    if (confirm("Empty content — delete this note locally?")) {
-      delete state.notes[key];
-      SYNC.addTombstone(key);
+function saveNew() {
+  const title = (state.draftTitle || "").trim();
+  const body  = state.draftBody || "";
+  if (!title && !body.trim()) {
+    cancelEdit();
+    return;
+  }
+  const id = newId();
+  const now = new Date().toISOString();
+  state.notes[id] = { title, body, createdAt: now, updatedAt: now };
+  state.dirty = true;
+  state.editing = null;
+  state.draftTitle = "";
+  state.draftBody = "";
+  save();
+  render();
+  updateSyncStatus();
+  toast("saved locally — sync to push");
+}
+
+function saveEdit(id) {
+  const title = (state.draftTitle || "").trim();
+  const body  = state.draftBody || "";
+  if (!title && !body.trim()) {
+    if (confirm("Empty note — delete it locally?")) {
+      delete state.notes[id];
+      JOURNAL_SYNC.addTombstone(id);
       state.dirty = true;
       save();
     }
   } else {
-    state.notes[key] = { text, updatedAt: new Date().toISOString() };
+    const existing = state.notes[id] || {};
+    state.notes[id] = {
+      title,
+      body,
+      createdAt: existing.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
     state.dirty = true;
     save();
     toast("saved locally — sync to push");
   }
   state.editing = null;
-  state.draft = "";
+  state.draftTitle = "";
+  state.draftBody = "";
   render();
   updateSyncStatus();
 }
 
+function startNewNote() {
+  state.editing = "new";
+  state.draftTitle = "";
+  state.draftBody = "";
+  render();
+  const t = document.querySelector(".note-card.composing .editor-title");
+  if (t) t.focus();
+}
+
+function renderFeed() {
+  const feed = document.getElementById("feed");
+  feed.innerHTML = "";
+
+  if (state.editing === "new") {
+    feed.appendChild(buildComposerCard());
+    requestAnimationFrame(() => {
+      const t = document.querySelector(".note-card.composing .editor-title");
+      if (t && document.activeElement !== t) t.focus();
+    });
+  }
+
+  const entries = getDisplayed();
+  renderSummary(entries.length);
+
+  if (entries.length === 0 && state.editing !== "new") {
+    const total = getEntries().length;
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    if (total === 0) {
+      empty.innerHTML = `
+        <span class="big">·</span>
+        Empty journal.<br>
+        Hit <strong>+ new</strong> (or press <code>n</code>) to write your first note.
+      `;
+    } else {
+      empty.innerHTML = `No notes match the current search.`;
+    }
+    feed.appendChild(empty);
+    return;
+  }
+
+  entries.forEach(e => feed.appendChild(buildNoteCard(e)));
+}
+
 function render() {
-  renderFilters();
   renderFeed();
 }
 
@@ -854,16 +842,17 @@ document.getElementById("search").addEventListener("input", e => {
   state.query = e.target.value;
   render();
 });
-
 document.getElementById("sort").addEventListener("change", e => {
   state.sort = e.target.value;
   render();
 });
+document.getElementById("new-btn").onclick = startNewNote;
 
 document.addEventListener("keydown", (e) => {
-  const inTextarea = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+  const tag = (document.activeElement && document.activeElement.tagName) || "";
+  const inField = tag === "TEXTAREA" || tag === "INPUT";
   const search = document.getElementById("search");
-  if (e.key === "/" && document.activeElement !== search && !inTextarea) {
+  if (e.key === "/" && document.activeElement !== search && !inField) {
     e.preventDefault();
     search.focus();
   } else if (e.key === "Escape" && document.activeElement === search) {
@@ -871,6 +860,9 @@ document.addEventListener("keydown", (e) => {
     state.query = "";
     render();
     search.blur();
+  } else if ((e.key === "n" || e.key === "N") && !inField && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    e.preventDefault();
+    startNewNote();
   }
 });
 
@@ -890,6 +882,7 @@ document.getElementById("year").textContent = new Date().getFullYear();
 window.addEventListener("storage", (e) => {
   if (e.key === STORAGE_KEY) { load(); render(); updateSyncStatus(); }
 });
+window.addEventListener("pagehide", save);
 
 // ---------- Sync ----------
 function fmtRelativeTime(iso) {
@@ -926,7 +919,7 @@ async function doSync() {
   if (state.syncing) return;
   state.syncing = true;
   updateSyncStatus();
-  const result = await SYNC.syncNow(state.notes);
+  const result = await JOURNAL_SYNC.syncNow(state.notes, { message: `journal: update (${Object.keys(state.notes).length} notes)` });
   state.syncing = false;
   if (result.ok) {
     state.dirty = false;
@@ -952,11 +945,11 @@ async function bootstrap() {
   load();
   render();
   updateSyncStatus();
-  const remote = await SYNC.loadRemote();
+  const remote = await JOURNAL_SYNC.loadRemote();
   if (remote !== null) {
-    const tombs = SYNC.getTombstones();
+    const tombs = JOURNAL_SYNC.getTombstones();
     const before = JSON.stringify(state.notes);
-    state.notes = SYNC.merge(state.notes, remote, tombs);
+    state.notes = JOURNAL_SYNC.merge(state.notes, remote, tombs);
     const changed = JSON.stringify(state.notes) !== before;
     save();
     updateSyncStatus();

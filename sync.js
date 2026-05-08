@@ -1,17 +1,20 @@
-/* GitHub-backed sync for notes.json
- * Reads notes.json from the deployed site (no auth) and pushes via the
- * GitHub Contents API (requires a personal access token stored locally).
- * Tombstones track local deletions so they survive merges.
+/* GitHub-backed sync — factory + default singleton.
+ *
+ * Reads <filePath> from the deployed site (no auth) and pushes via the GitHub
+ * Contents API (requires a personal access token stored locally). Tombstones
+ * track local deletions so they survive merges.
+ *
+ * Usage:
+ *   window.SYNC                                  // legacy: bound to notes.json
+ *   window.createSync({ filePath, tombKey })     // new: build a sync for any file
  */
-window.SYNC = (function () {
+(function () {
   const REPO_OWNER = "ahmed-kar";
   const REPO_NAME  = "ahmed-kar.github.io";
   const BRANCH     = "master";
-  const FILE_PATH  = "notes.json";
   const PAT_KEY    = "gh-pat-v1";
-  const TOMB_KEY   = "ahmed-reading-tombstones-v1";
 
-  // ---------- PAT storage ----------
+  // ---------- Shared PAT storage ----------
   function getPAT() {
     try { return localStorage.getItem(PAT_KEY) || ""; } catch { return ""; }
   }
@@ -22,123 +25,11 @@ window.SYNC = (function () {
     try { localStorage.removeItem(PAT_KEY); } catch {}
   }
 
-  // ---------- Tombstones (local deletions awaiting sync) ----------
-  function getTombstones() {
-    try {
-      const raw = localStorage.getItem(TOMB_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch { return {}; }
-  }
-  function addTombstone(key) {
-    const t = getTombstones();
-    t[key] = new Date().toISOString();
-    try { localStorage.setItem(TOMB_KEY, JSON.stringify(t)); } catch {}
-  }
-  function clearAllTombstones() {
-    try { localStorage.removeItem(TOMB_KEY); } catch {}
-  }
-
-  // ---------- Read remote (public, no auth) ----------
-  async function loadRemote() {
-    try {
-      const res = await fetch(`${FILE_PATH}?t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) {
-        if (res.status === 404) return {};
-        throw new Error(`fetch ${res.status}`);
-      }
-      const text = await res.text();
-      if (!text.trim()) return {};
-      const parsed = JSON.parse(text);
-      return (parsed && typeof parsed === "object") ? parsed : {};
-    } catch (e) {
-      console.warn("[sync] loadRemote failed:", e);
-      return null; // null = transient failure (offline / file://)
-    }
-  }
-
-  // ---------- Merge logic ----------
-  // Combine local + remote notes, applying tombstones to suppress
-  // remotely-resurrected items the user has deleted locally.
-  function merge(local, remote, tombstones) {
-    local = local || {};
-    remote = remote || {};
-    tombstones = tombstones || {};
-    const merged = {};
-    const allKeys = new Set([...Object.keys(local), ...Object.keys(remote)]);
-
-    for (const k of allKeys) {
-      const l = local[k];
-      const r = remote[k];
-      const tomb = tombstones[k];
-
-      if (tomb) {
-        const lu = (l && l.updatedAt) || "";
-        const ru = (r && r.updatedAt) || "";
-        // Tombstone wins unless something newer exists on either side
-        if (lu <= tomb && ru <= tomb) continue;
-      }
-
-      if (l && r) merged[k] = ((l.updatedAt || "") >= (r.updatedAt || "")) ? l : r;
-      else merged[k] = l || r;
-    }
-    return merged;
-  }
-
-  // ---------- Push (PAT required) ----------
-  async function getFileSha(pat) {
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(FILE_PATH)}?ref=${encodeURIComponent(BRANCH)}`;
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${pat}`,
-        Accept: "application/vnd.github+json",
-      },
-      cache: "no-store",
-    });
-    if (res.status === 404) return null;
-    if (res.status === 401) { clearPAT(); throw new Error("BAD_PAT"); }
-    if (!res.ok) throw new Error(`GET sha ${res.status}`);
-    const data = await res.json();
-    return data.sha;
-  }
-
   function utf8ToBase64(s) {
     return btoa(unescape(encodeURIComponent(s)));
   }
 
-  async function push(notes, message) {
-    const pat = getPAT();
-    if (!pat) throw new Error("NO_PAT");
-
-    const sha = await getFileSha(pat);
-    const content = JSON.stringify(notes, null, 2) + "\n";
-    const body = {
-      message: message || `notes: update (${Object.keys(notes).length} entries)`,
-      content: utf8ToBase64(content),
-      branch: BRANCH,
-    };
-    if (sha) body.sha = sha;
-
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(FILE_PATH)}`;
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${pat}`,
-        Accept: "application/vnd.github+json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (res.status === 401) { clearPAT(); throw new Error("BAD_PAT"); }
-    if (!res.ok) {
-      const t = await res.text();
-      throw new Error(`PUT ${res.status}: ${t.slice(0, 200)}`);
-    }
-    clearAllTombstones(); // remote now reflects deletions
-    return true;
-  }
-
-  // ---------- PAT modal UI ----------
+  // ---------- PAT modal UI (shared) ----------
   function showPATModal() {
     return new Promise(resolve => {
       const overlay = document.createElement("div");
@@ -192,37 +83,157 @@ window.SYNC = (function () {
     });
   }
 
-  // High-level helper: ensure PAT, then push. Surfaces a single boolean
-  // result (true = synced, false = aborted/failed) and toasts via callback.
-  async function syncNow(notes, opts) {
-    opts = opts || {};
-    const message = opts.message;
-    if (!getPAT()) {
-      const ok = await showPATModal();
-      if (!ok) return { ok: false, reason: "no-pat" };
+  // ---------- Factory ----------
+  function createSync(config) {
+    if (!config || !config.filePath || !config.tombKey) {
+      throw new Error("createSync requires { filePath, tombKey }");
     }
-    try {
-      await push(notes, message);
-      return { ok: true };
-    } catch (e) {
-      if (String(e.message).includes("BAD_PAT") || String(e.message).includes("NO_PAT")) {
-        const ok = await showPATModal();
-        if (!ok) return { ok: false, reason: "bad-pat-cancelled" };
-        try {
-          await push(notes, message);
-          return { ok: true };
-        } catch (e2) {
-          return { ok: false, reason: "push-failed", error: e2 };
+    const FILE_PATH = config.filePath;
+    const TOMB_KEY  = config.tombKey;
+
+    function getTombstones() {
+      try {
+        const raw = localStorage.getItem(TOMB_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch { return {}; }
+    }
+    function addTombstone(key) {
+      const t = getTombstones();
+      t[key] = new Date().toISOString();
+      try { localStorage.setItem(TOMB_KEY, JSON.stringify(t)); } catch {}
+    }
+    function clearAllTombstones() {
+      try { localStorage.removeItem(TOMB_KEY); } catch {}
+    }
+
+    async function loadRemote() {
+      try {
+        const res = await fetch(`${FILE_PATH}?t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) {
+          if (res.status === 404) return {};
+          throw new Error(`fetch ${res.status}`);
         }
+        const text = await res.text();
+        if (!text.trim()) return {};
+        const parsed = JSON.parse(text);
+        return (parsed && typeof parsed === "object") ? parsed : {};
+      } catch (e) {
+        console.warn(`[sync ${FILE_PATH}] loadRemote failed:`, e);
+        return null; // null = transient failure (offline / file://)
       }
-      return { ok: false, reason: "push-failed", error: e };
     }
+
+    function merge(local, remote, tombstones) {
+      local = local || {};
+      remote = remote || {};
+      tombstones = tombstones || {};
+      const merged = {};
+      const allKeys = new Set([...Object.keys(local), ...Object.keys(remote)]);
+
+      for (const k of allKeys) {
+        const l = local[k];
+        const r = remote[k];
+        const tomb = tombstones[k];
+
+        if (tomb) {
+          const lu = (l && l.updatedAt) || "";
+          const ru = (r && r.updatedAt) || "";
+          if (lu <= tomb && ru <= tomb) continue;
+        }
+
+        if (l && r) merged[k] = ((l.updatedAt || "") >= (r.updatedAt || "")) ? l : r;
+        else merged[k] = l || r;
+      }
+      return merged;
+    }
+
+    async function getFileSha(pat) {
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(FILE_PATH)}?ref=${encodeURIComponent(BRANCH)}`;
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${pat}`,
+          Accept: "application/vnd.github+json",
+        },
+        cache: "no-store",
+      });
+      if (res.status === 404) return null;
+      if (res.status === 401) { clearPAT(); throw new Error("BAD_PAT"); }
+      if (!res.ok) throw new Error(`GET sha ${res.status}`);
+      const data = await res.json();
+      return data.sha;
+    }
+
+    async function push(notes, message) {
+      const pat = getPAT();
+      if (!pat) throw new Error("NO_PAT");
+
+      const sha = await getFileSha(pat);
+      const content = JSON.stringify(notes, null, 2) + "\n";
+      const body = {
+        message: message || `${FILE_PATH}: update (${Object.keys(notes).length} entries)`,
+        content: utf8ToBase64(content),
+        branch: BRANCH,
+      };
+      if (sha) body.sha = sha;
+
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(FILE_PATH)}`;
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${pat}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.status === 401) { clearPAT(); throw new Error("BAD_PAT"); }
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(`PUT ${res.status}: ${t.slice(0, 200)}`);
+      }
+      clearAllTombstones();
+      return true;
+    }
+
+    async function syncNow(notes, opts) {
+      opts = opts || {};
+      const message = opts.message;
+      if (!getPAT()) {
+        const ok = await showPATModal();
+        if (!ok) return { ok: false, reason: "no-pat" };
+      }
+      try {
+        await push(notes, message);
+        return { ok: true };
+      } catch (e) {
+        if (String(e.message).includes("BAD_PAT") || String(e.message).includes("NO_PAT")) {
+          const ok = await showPATModal();
+          if (!ok) return { ok: false, reason: "bad-pat-cancelled" };
+          try {
+            await push(notes, message);
+            return { ok: true };
+          } catch (e2) {
+            return { ok: false, reason: "push-failed", error: e2 };
+          }
+        }
+        return { ok: false, reason: "push-failed", error: e };
+      }
+    }
+
+    return {
+      REPO_OWNER, REPO_NAME, BRANCH, FILE_PATH,
+      getPAT, setPAT, clearPAT,
+      getTombstones, addTombstone, clearAllTombstones,
+      loadRemote, merge, push, syncNow, showPATModal,
+    };
   }
 
-  return {
-    REPO_OWNER, REPO_NAME, BRANCH, FILE_PATH,
-    getPAT, setPAT, clearPAT,
-    getTombstones, addTombstone, clearAllTombstones,
-    loadRemote, merge, push, syncNow, showPATModal,
-  };
+  window.createSync = createSync;
+
+  // Default singleton — reading notes (notes.json). Existing pages keep using this.
+  window.SYNC = createSync({
+    filePath: "notes.json",
+    tombKey:  "ahmed-reading-tombstones-v1",
+  });
 })();
