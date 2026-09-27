@@ -299,7 +299,7 @@ main {
 /* ============ Publications ============ */
 .pub {
   display: grid;
-  grid-template-columns: 110px 1fr;
+  grid-template-columns: 160px 1fr;
   gap: 22px;
   padding: 14px 0;
   border-bottom: 1px solid var(--rule);
@@ -309,8 +309,9 @@ main {
 .pub:last-child { border-bottom: none; }
 
 .pub-img {
-  width: 110px;
-  height: 90px;
+  width: 160px;
+  height: 120px;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -514,7 +515,7 @@ footer p { margin: 0; }
   }
 
   .pub { grid-template-columns: 1fr; gap: 12px; }
-  .pub-img { width: 100%; height: 80px; }
+  .pub-img { width: 100%; height: 150px; }
 
   .timeline::before { left: 6px; }
   .timeline li {
