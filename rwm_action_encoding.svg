@@ -1,0 +1,17 @@
+<svg width="100%" viewBox="0 0 680 510" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Same trajectory, two action encodings, two different predicted futures</title>
+<rect x="40" y="40" width="600" height="450" fill="#f5f1ea" rx="12"/>
+<!-- shared commanded trajectory -->
+<path d="M110 360 C 180 300, 240 330, 300 270" fill="none" stroke="#8a7d6b" stroke-width="6" stroke-linecap="round"/>
+<circle cx="110" cy="360" r="11" fill="#8a7d6b"/>
+<circle cx="300" cy="270" r="13" fill="#3d3a35"/>
+<!-- absolute encoding prediction -->
+<path d="M300 270 C 380 230, 450 190, 540 130" fill="none" stroke="#c96342" stroke-width="6" stroke-linecap="round"/>
+<polygon points="555,120 526,124 543,146" fill="#c96342"/>
+<!-- relative encoding prediction: near-orthogonal -->
+<path d="M300 270 C 380 300, 440 350, 500 420" fill="none" stroke="#4a7c8c" stroke-width="6" stroke-linecap="round" stroke-dasharray="14 10"/>
+<polygon points="510,434 485,418 510,406" fill="#4a7c8c"/>
+<!-- angle arc -->
+<path d="M370 238 A 80 80 0 0 1 372 302" fill="none" stroke="#3d3a35" stroke-width="3"/>
+<text x="392" y="278" font-family="JetBrains Mono, monospace" font-size="30" fill="#3d3a35">⊥</text>
+</svg>
