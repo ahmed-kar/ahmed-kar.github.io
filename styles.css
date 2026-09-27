@@ -340,14 +340,27 @@ main {
   margin: 0;
 }
 
-.pub-meta .ven .vname { font-style: italic; }
+.pub-meta .ven em { font-style: normal; }
 
-.pub-meta .ven .sep {
-  margin: 0 6px;
-  color: var(--rule);
+.pub-meta .ven .vname { margin-right: 10px; }
+
+.pub-meta .ven a {
+  display: inline-block;
+  padding: 1px 8px;
+  margin-right: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  transition: all 0.15s;
 }
 
-.pub-meta .ven a { color: var(--accent); }
+.pub-meta .ven a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  text-decoration: none;
+  background: var(--bg-soft);
+}
 
 .pub-meta .desc {
   font-size: 0.88rem;
