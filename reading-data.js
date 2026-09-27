@@ -1,4 +1,4 @@
-/* Shared reading list data — used by reading.html and notes.html */
+/* Shared reading list data — used by reading.html */
 window.READING_CATEGORIES = [
   { id: "world-models", title: "World Models", icon: "🌍", items: [
     "World Models (Ha & Schmidhuber, 2018)",
