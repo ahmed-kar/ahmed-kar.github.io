@@ -299,19 +299,15 @@ main {
 /* ============ Publications ============ */
 .pub {
   display: grid;
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 96px 1fr;
   gap: 15px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--rule);
+  padding: 10px 0;
   align-items: start;
 }
 
-.pub:last-child { border-bottom: none; }
-
 .pub-img {
-  width: 80px;
-  height: 60px;
-  margin-top: 4px;
+  width: 96px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -324,47 +320,40 @@ main {
   display: block;
 }
 
+.pub-meta h4 {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  margin: 0 0 3px;
+}
+
 .pub-meta .auth {
-  font-size: 0.86rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
   color: var(--text-muted);
-  margin: 0 0 2px;
+  margin: 0 0 3px;
 }
 
 .pub-meta .ven {
-  font-size: 0.84rem;
-  color: var(--accent);
-  margin: 0 0 8px;
-  font-style: italic;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  margin: 0;
 }
+
+.pub-meta .ven .vname { font-style: italic; }
+
+.pub-meta .ven .sep {
+  margin: 0 6px;
+  color: var(--rule);
+}
+
+.pub-meta .ven a { color: var(--accent); }
 
 .pub-meta .desc {
   font-size: 0.88rem;
   color: var(--text);
   margin: 0 0 8px;
   line-height: 1.6;
-}
-
-.pub-meta .links {
-  font-size: 0.82rem;
-  margin: 0;
-}
-
-.pub-meta .links a {
-  display: inline-block;
-  padding: 3px 10px;
-  margin-right: 8px;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  transition: all 0.15s;
-}
-
-.pub-meta .links a:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  text-decoration: none;
-  background: var(--bg-soft);
 }
 
 /* ============ Projects ============ */
